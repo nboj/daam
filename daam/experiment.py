@@ -12,7 +12,8 @@ from .utils import auto_autocast
 from .evaluate import load_mask
 
 
-__all__ = ['GenerationExperiment', 'COCO80_LABELS', 'COCOSTUFF27_LABELS', 'COCO80_INDICES', 'build_word_list_coco80']
+__all__ = ['GenerationExperiment', 'COCO80_LABELS',
+           'COCOSTUFF27_LABELS', 'COCO80_INDICES', 'build_word_list_coco80']
 
 
 COCO80_LABELS: List[str] = [
@@ -81,7 +82,8 @@ COCO80_TO_27 = {
 
 def build_word_list_coco80() -> Dict[str, List[str]]:
     words_map = COCO80_ONTOLOGY.copy()
-    words_map = {k: v for k, v in words_map.items() if not any(item in COCO80_ONTOLOGY for item in v)}
+    words_map = {k: v for k, v in words_map.items() if not any(
+        item in COCO80_ONTOLOGY for item in v)}
 
     return words_map
 
@@ -158,7 +160,8 @@ class GenerationExperiment:
 
         if self.truth_masks is not None:
             for name, mask in self.truth_masks.items():
-                im = PIL.Image.fromarray((mask * 255).unsqueeze(-1).expand(-1, -1, 4).byte().numpy())
+                im = PIL.Image.fromarray(
+                    (mask * 255).unsqueeze(-1).expand(-1, -1, 4).byte().numpy())
                 im.save(path / f'{name.lower()}.gt.png')
 
         if heat_maps and tokenizer is not None:
@@ -193,11 +196,13 @@ class GenerationExperiment:
 
         if composite:
             try:
-                im = PIL.Image.open(self.path / self.subtype / f'composite.{pred_prefix}.pred.png')
+                im = PIL.Image.open(
+                    self.path / self.subtype / f'composite.{pred_prefix}.pred.png')
                 im = np.array(im)
 
                 for mask_idx in np.unique(im):
-                    mask = torch.from_numpy((im == mask_idx).astype(np.float32))
+                    mask = torch.from_numpy(
+                        (im == mask_idx).astype(np.float32))
                     _add_mask(masks, vocab[mask_idx], mask, simplify80)
             except FileNotFoundError:
                 pass
@@ -218,7 +223,8 @@ class GenerationExperiment:
 
     def save_prediction_mask(self, mask: torch.Tensor, word: str, name: str):
         path = self if isinstance(self, Path) else self.path
-        im = PIL.Image.fromarray((mask * 255).unsqueeze(-1).expand(-1, -1, 4).cpu().byte().numpy())
+        im = PIL.Image.fromarray(
+            (mask * 255).unsqueeze(-1).expand(-1, -1, 4).cpu().byte().numpy())
         im.save(path / self.subtype / f'{word.lower()}.{name}.pred.png')
 
     def save_heat_map(
@@ -235,9 +241,12 @@ class GenerationExperiment:
             tokenizer = self.tokenizer
 
         with auto_autocast(dtype=torch.float32):
-            path = self.path / self.subtype / f'{output_prefix}{word.lower()}.heat_map.png'
-            heat_map = GlobalHeatMap(tokenizer, self.prompt, self.global_heat_map)
-            heat_map.compute_word_heat_map(word).expand_as(self.image, color_normalize=not absolute, out_file=path, plot=True)
+            path = self.path / self.subtype / \
+                f'{output_prefix}{word.lower()}.heat_map.png'
+            heat_map = GlobalHeatMap(
+                tokenizer, self.prompt, self.global_heat_map)
+            heat_map.compute_word_heat_map(word).expand_as(
+                self.image, color_normalize=not absolute, out_file=path, plot=True)
 
         return path
 
@@ -334,11 +343,12 @@ class GenerationExperiment:
             return experiments
 
         path = Path(path)
-        exp = torch.load(path / subtype / 'generation.pt')
+        exp = torch.load(path / subtype / 'generation.pt', weights_only=False)
         exp.subtype = subtype
         exp.path = path
         exp.truth_masks = exp._load_truth_masks(simplify80=simplify80)
-        exp.prediction_masks = exp._load_pred_masks(pred_prefix, composite=composite, simplify80=simplify80, vocab=vocab)
+        exp.prediction_masks = exp._load_pred_masks(
+            pred_prefix, composite=composite, simplify80=simplify80, vocab=vocab)
         exp.annotations = exp._try_load_annotations()
 
         return exp

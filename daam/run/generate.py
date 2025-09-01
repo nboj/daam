@@ -223,7 +223,7 @@ def main():
             prompt_id = str(prompt_id)
 
             with trace(pipe, low_memory=args.low_memory, save_heads=args.save_heads, load_heads=args.load_heads) as tc:
-                out = pipe(prompt, num_inference_steps=args.num_timesteps, generator=gen, callback=tc.time_callback)
+                out = pipe(prompt, num_inference_steps=args.num_timesteps, generator=gen, callback=tc.time_callback, callback_steps=1)
                 exp = tc.to_experiment(args.output_folder, id=prompt_id, seed=seed)
                 exp.save(args.output_folder, heat_maps=args.action == 'quickgen')
 

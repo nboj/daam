@@ -1,9 +1,9 @@
 scikit-image
-diffusers==0.21.2
+diffusers
 spacy
 gradio
 ftfy
-transformers==4.30.2
+transformers
 pandas
 numba
 nltk
